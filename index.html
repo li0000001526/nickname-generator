@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>网名生成器 · 取一个恰到好处的名字</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+JP:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F1EC;
+    --ink:#2B2930;
+    --muted:#7A7682;
+    --line:rgba(43,41,48,.12);
+    --glass:rgba(255,255,255,.62);
+    --glass-strong:rgba(255,255,255,.82);
+    --accent:#3F6B6B;
+    --accent-soft:#E3ECEA;
+    --shadow:0 14px 40px rgba(43,41,48,.10);
+    --shadow-sm:0 8px 22px rgba(43,41,48,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Noto Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    background:
+      radial-gradient(40% 38% at 14% 16%, #EDE6F2 0, transparent 60%),
+      radial-gradient(38% 36% at 86% 10%, #F6E7E3 0, transparent 60%),
+      radial-gradient(42% 40% at 8% 86%, #E6EEE9 0, transparent 62%),
+      radial-gradient(44% 42% at 92% 88%, #E7EBF4 0, transparent 62%),
+      radial-gradient(36% 34% at 60% 50%, #F8F1E4 0, transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+    padding:40px 18px 64px;
+    position:relative;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap{max-width:940px;margin:0 auto;position:relative;z-index:1;}
+
+  header{text-align:center;margin-bottom:34px;}
+  .eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:14px;}
+  h1{
+    font-family:"Noto Serif SC","Noto Serif JP",serif;
+    font-weight:900;font-size:clamp(34px,6.4vw,56px);letter-spacing:.02em;line-height:1.1;
+    background:linear-gradient(120deg,#2B2930 0%,#5A5566 55%,#3F6B6B 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .sub{margin-top:14px;font-size:15px;color:var(--muted);font-weight:500;}
+
+  .panel{
+    background:var(--glass);backdrop-filter:blur(16px) saturate(120%);-webkit-backdrop-filter:blur(16px) saturate(120%);
+    border:1px solid rgba(255,255,255,.7);border-radius:24px;padding:24px;box-shadow:var(--shadow);margin-bottom:22px;
+  }
+
+  .label{font-weight:700;font-size:13px;color:var(--muted);margin-bottom:12px;display:block;letter-spacing:.02em;}
+
+  .langs{display:flex;flex-wrap:wrap;gap:8px;}
+  .lang-chip{
+    border:1px solid var(--accent);background:rgba(255,255,255,.6);color:var(--accent);
+    font-weight:800;font-size:13px;padding:7px 15px;border-radius:999px;cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, background .12s;
+    user-select:none;
+  }
+  .lang-chip:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+  .lang-chip.active{background:var(--accent);color:#fff;border-color:transparent;box-shadow:var(--shadow-sm);}
+
+  .styles{display:flex;flex-wrap:wrap;gap:10px;}
+  .chip{
+    border:1px solid var(--line);background:rgba(255,255,255,.55);font-weight:700;font-size:14px;color:var(--ink);
+    padding:9px 17px;border-radius:999px;cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, background .12s ease;user-select:none;
+  }
+  .chip:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+  .chip.active{color:#fff;border-color:transparent;box-shadow:var(--shadow-sm);}
+  .chip[data-k="gufeng"].active{background:#8E7AA0;}
+  .chip[data-k="wenyi"].active{background:#6FA8A0;}
+  .chip[data-k="keai"].active{background:#D98E9E;}
+  .chip[data-k="dianjing"].active{background:#D98C5F;}
+  .chip[data-k="en"].active{background:#7BA05B;}
+  .chip[data-k="ec"].active{background:#C77FA0;}
+  .chip[data-k="shadiao"].active{background:#C9A24B;}
+  .chip[data-k="shiyi"].active{background:#6B86B0;}
+  .chip[data-k="couple"].active{background:#BE8FA6;}
+
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+  input[type=text]{
+    flex:1;min-width:200px;border:1px solid var(--line);background:rgba(255,255,255,.7);
+    border-radius:14px;padding:13px 16px;font-size:15px;font-weight:500;color:var(--ink);outline:none;
+    font-family:inherit;transition:border-color .15s, box-shadow .15s;
+  }
+  input[type=text]::placeholder{color:#a9a5ae;}
+  input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);}
+
+  select{border:1px solid var(--line);background:rgba(255,255,255,.7);border-radius:14px;padding:12px 14px;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit;}
+
+  .btn{
+    border:1px solid var(--line);background:rgba(255,255,255,.75);font-weight:700;font-size:15px;font-family:inherit;
+    padding:13px 24px;border-radius:14px;cursor:pointer;transition:transform .1s ease, box-shadow .1s ease, background .1s;
+  }
+  .btn:hover{box-shadow:var(--shadow-sm);transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn.primary{background:var(--accent);color:#fff;border-color:transparent;box-shadow:var(--shadow-sm);}
+  .btn.primary:hover{background:#355c5c;}
+
+  .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+  .name-card{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--glass-strong);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.7);border-radius:16px;padding:16px 16px;box-shadow:var(--shadow-sm);
+    transition:transform .14s ease, box-shadow .14s ease;animation:rise .5s ease both;
+  }
+  .name-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
+  .name-card .txt{font-weight:700;font-size:17px;word-break:break-all;line-height:1.35;letter-spacing:.01em;}
+  .name-card .acts{display:flex;gap:8px;flex-shrink:0;}
+  .mini{
+    border:1px solid var(--line);background:#fff;border-radius:10px;width:34px;height:32px;cursor:pointer;
+    font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--ink);
+    transition:background .12s, transform .1s;
+  }
+  .mini:hover{transform:translateY(-1px);}
+  .mini.love.on{background:#E36A8A;color:#fff;border-color:transparent;}
+  .mini.cp:hover{background:var(--accent-soft);}
+
+  .fav-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;}
+  .fav-tag{
+    background:rgba(190,143,166,.16);color:var(--ink);border:1px solid rgba(190,143,166,.4);
+    border-radius:999px;padding:7px 8px 7px 15px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;
+  }
+  .fav-tag b{cursor:pointer;width:20px;height:20px;border-radius:50%;background:rgba(43,41,48,.08);display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .fav-tag b:hover{background:rgba(43,41,48,.18);}
+  .empty{opacity:.6;font-weight:500;font-size:14px;color:var(--muted);}
+
+  footer{text-align:center;margin-top:34px;font-weight:500;font-size:13px;color:var(--muted);}
+
+  .toast{
+    position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;font-weight:600;padding:12px 22px;border-radius:14px;
+    opacity:0;pointer-events:none;transition:.28s;z-index:50;font-size:14px;box-shadow:var(--shadow);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  @media (prefers-reduced-motion:reduce){.name-card{animation:none;}*{transition:none!important;}}
+  @media (max-width:540px){.panel{padding:18px;}.results{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}}
+</style>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>✍️</text></svg>">
+<!-- nickSeo v1 -->
+<meta name="description" content="免费在线网名生成器：古风、文艺、可爱、电竞、英文、二次元、沙雕、诗意、情侣 9 种风格一键生成，支持偏好词融入、批量去重、一键收藏，简繁中/英/日四语界面，纯前端零依赖。">
+<meta name="keywords" content="网名生成器,起网名,取网名,好听的网名,古风网名,文艺网名,情侣网名,沙雕网名,英文网名,二次元昵称,游戏ID,nickname generator,网名大全,小众网名">
+<link rel="canonical" href="https://cikyr.li00000.xyz/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cikyr.li00000.xyz/?lang=zh">
+<link rel="alternate" hreflang="zh-Hant" href="https://cikyr.li00000.xyz/?lang=zht">
+<link rel="alternate" hreflang="en" href="https://cikyr.li00000.xyz/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://cikyr.li00000.xyz/?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://cikyr.li00000.xyz/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="网名生成器 · 取一个恰到好处的名字">
+<meta property="og:description" content="9 种风格一键生成网名/游戏ID/昵称，偏好词融入，四语界面，纯前端零依赖。">
+<meta property="og:url" content="https://cikyr.li00000.xyz/">
+<meta property="og:site_name" content="网名生成器">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta property="og:locale:alternate" content="zh_TW">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="网名生成器 · 取一个恰到好处的名字">
+<meta name="twitter:description" content="9 种风格一键生成网名/游戏ID/昵称，纯前端零依赖。">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "网名生成器", "alternateName": ["昵称生成器", "取网名工具", "游戏ID生成器", "nickname generator"], "url": "https://cikyr.li00000.xyz/", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any (web browser)", "inLanguage": ["zh", "zh-Hant", "en", "ja"], "description": "免费在线网名生成器：9 种风格一键生成，偏好词融入，简繁中/英/日四语界面，收藏与复制，纯前端零依赖。", "offers": {"@type": "Offer", "price": 0, "priceCurrency": "CNY"}, "featureList": ["9 种风格一键生成（古风/文艺/可爱/电竞/英文/二次元/沙雕/诗意/情侣）", "偏好词融入生成结果", "简体中文・繁體・英文・日文的四语界面", "收藏与一键复制", "纯前端零依赖，可离线使用"]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "怎么起一个不重名、又好听的好网名？", "acceptedAnswer": {"@type": "Answer", "text": "先用上方「偏好词」填 1–2 个你喜欢的字（星、鹿、moon 都行），再选一个风格，工具会在词库组合中随机抽取并自动去重；生成 12–40 个后，重复率极低。想要更小众，避开热门字（雨、梦、浅），用「沙雕」「诗意」等长尾风格，撞名概率更低。"}}, {"@type": "Question", "name": "古风、文艺类网名怎么取才有味道？", "acceptedAnswer": {"@type": "Answer", "text": "古风网名讲究意象：取《诗经》《楚辞》里的字（如「蒹葭」「江离」），或用单字组合「墨」「青」「岚」，避免生僻到无人能读的繁体。文艺风则用「动词＋名词」结构，如「拾光」「等风」，比纯名词更有画面感。"}}, {"@type": "Question", "name": "情侣网名怎么搭配才不尴尬？", "acceptedAnswer": {"@type": "Answer", "text": "选「情侣」风格，工具会按对仗词库配对（予你/念你、晚风/清欢），再让对方换顺序或换一个字（听风 → 望山），保持同一个画面但各自独立。避免「老公/老婆」直白款，意象款（如「我的四月天」）更耐看。"}}, {"@type": "Question", "name": "游戏ID、电竞风格网名有什么讲究？", "acceptedAnswer": {"@type": "Answer", "text": "游戏ID要短（3–6 字）、好念、无生僻字，方便队友喊你；电竞风常用「称号＋武器/动作」结构（孤影之刃、狙神传说），加数字后缀偏爱 16、7、9 这类，避免乱码字母堆叠。"}}, {"@type": "Question", "name": "英文或二次元昵称怎么起？", "acceptedAnswer": {"@type": "Answer", "text": "英文昵称推荐「前缀＋后缀」直接组合（SilentWolf、NovaSky），或取一个词加数字；二次元日系昵称常用「名字＋ちゃん/くん」或软萌词（もちうさぎ）。所有风格都能在你的偏好词基础上融合，避免纯机翻感。"}}]}</script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="eyebrow">Nickname Studio</div>
+    <h1 id="title">取一个恰到好处的名字</h1>
+    <div class="sub" id="sub">选风格 · 填偏好 · 一键生成你的专属网名</div>
+  </header>
+
+  <div class="panel">
+    <span class="label" id="langLabel">语言</span>
+    <div class="langs" id="langs">
+      <div class="lang-chip active" data-l="zh">简体</div>
+      <div class="lang-chip" data-l="zht">繁體</div>
+      <div class="lang-chip" data-l="en">English</div>
+      <div class="lang-chip" data-l="ja">日本語</div>
+    </div>
+
+    <span class="label" style="margin-top:20px;display:block;" id="styleLabel">① 选择风格</span>
+    <div class="styles" id="styles"></div>
+
+    <span class="label" style="margin-top:20px;display:block;" id="kwLabel">② 偏好词（可选，会融入生成结果）</span>
+    <div class="row">
+      <input type="text" id="kw" placeholder="例如：星、鹿、李、moon …… 留空则纯随机">
+    </div>
+
+    <span class="label" style="margin-top:20px;display:block;" id="numLabel">③ 生成数量 & 生成</span>
+    <div class="row">
+      <select id="count">
+        <option value="6">6 个</option>
+        <option value="12" selected>12 个</option>
+        <option value="20">20 个</option>
+        <option value="40">40 个</option>
+      </select>
+      <button class="btn primary" id="gen">⚡ 生成网名</button>
+      <button class="btn" id="copyAll">📋 复制全部</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="label" id="resLabel">生成结果</span>
+    <div class="results" id="results"></div>
+  </div>
+
+  <div class="panel">
+    <span class="label" id="favLabel">❤ 我的收藏</span>
+    <div class="fav-list" id="favList"><span class="empty">还没有收藏，点卡片上的 ♥ 保存喜欢的网名</span></div>
+  </div>
+
+  <footer id="footer">纯前端 · 零依赖 · 可一键部署 ｜ 网名生成器</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 国际化文案 ============ */
+const I18N = {
+  zh:{ eyebrow:"Nickname Studio", title:"取一个恰到好处的名字", sub:"选风格 · 填偏好 · 一键生成你的专属网名",
+       langLabel:"语言", styleLabel:"① 选择风格", kwLabel:"② 偏好词（可选，会融入生成结果）", kwPlaceholder:"例如：星、鹿、李、moon …… 留空则纯随机",
+       numLabel:"③ 生成数量 & 生成", gen:"⚡ 生成网名", copyAll:"📋 复制全部", resLabel:"生成结果", favLabel:"❤ 我的收藏", favEmpty:"还没有收藏，点卡片上的 ♥ 保存喜欢的网名", footer:"纯前端 · 零依赖 · 可一键部署 ｜ 网名生成器" },
+  zht:{ eyebrow:"Nickname Studio", title:"取一個恰到好處的名字", sub:"選風格 · 填偏好 · 一鍵生成你的專屬網名",
+       langLabel:"語言", styleLabel:"① 選擇風格", kwLabel:"② 偏好詞（可選，會融入生成結果）", kwPlaceholder:"例如：星、鹿、李、moon …… 留空則純隨機",
+       numLabel:"③ 生成數量 & 生成", gen:"⚡ 生成網名", copyAll:"📋 複製全部", resLabel:"生成結果", favLabel:"❤ 我的收藏", favEmpty:"還沒有收藏，點卡片上的 ♥ 保存喜歡的網名", footer:"純前端 · 零依賴 · 可一鍵部署 ｜ 網名生成器" },
+  en:{ eyebrow:"Nickname Studio", title:"Find a name that fits just right", sub:"Pick a style · add a keyword · generate your nickname",
+       langLabel:"Language", styleLabel:"① Choose style", kwLabel:"② Keyword (optional, blended into results)", kwPlaceholder:"e.g. star, deer, Li, moon … leave blank for random",
+       numLabel:"③ Quantity & Generate", gen:"⚡ Generate", copyAll:"📋 Copy all", resLabel:"Results", favLabel:"❤ My favorites", favEmpty:"No favorites yet — tap ♥ on a card to save it", footer:"Pure frontend · zero dependencies · deploy anywhere ｜ Nickname Generator" },
+  ja:{ eyebrow:"Nickname Studio", title:"ちょうどいい名前を見つけよう", sub:"スタイルを選ぶ・キーワードを入れる・一眼で生成",
+       langLabel:"言語", styleLabel:"① スタイルを選ぶ", kwLabel:"② キーワード（任意・結果に混ぜます）", kwPlaceholder:"例：星、鹿、李、moon … 空欄でランダム",
+       numLabel:"③ 数量 & 生成", gen:"⚡ 生成する", copyAll:"📋 すべてコピー", resLabel:"生成結果", favLabel:"❤ お気に入り", favEmpty:"まだお気に入りはありません。カードの ♥ を押して保存", footer:"フロントエンドのみ · 依存ゼロ · どこへでも配置可 ｜ 名前生成器" }
+};
+
+const STYLE_NAMES = {
+  zh:{gufeng:"古风",wenyi:"文艺",keai:"可爱",dianjing:"电竞",en:"英文",ec:"二次元",shadiao:"沙雕",shiyi:"诗意",couple:"情侣"},
+  zht:{gufeng:"古風",wenyi:"文藝",keai:"可愛",dianjing:"電競",en:"英文",ec:"二次元",shadiao:"沙雕",shiyi:"詩意",couple:"情侶"},
+  en:{gufeng:"Ancient",wenyi:"Literary",keai:"Cute",dianjing:"Gaming",en:"English",ec:"Anime",shadiao:"Quirky",shiyi:"Poetic",couple:"Couple"},
+  ja:{gufeng:"中国古風",wenyi:"文芸",keai:"可愛い",dianjing:"ゲーム",en:"英語",ec:"二次元",shadiao:"変テコ",shiyi:"詩的",couple:"カップル"}
+};
+const STYLE_ORDER = ["gufeng","wenyi","keai","dianjing","en","ec","shadiao","shiyi","couple"];
+
+/* ============ 简→繁映射（覆盖词库字符） ============ */
+const S2T = {
+ "残":"殘","归":"歸","绾":"綰","迟":"遲","惊":"驚","敛":"斂","鸢":"鳶","辞":"辭","诀":"訣","岛":"島","灯":"燈","桥":"橋","尘":"塵","锦":"錦","岚":"嵐","砚":"硯","鹤":"鶴","鲤":"鯉","叹":"嘆","殇":"殤","遥":"遙","昼":"晝","余":"餘","风":"風","旧":"舊","屿":"嶼","听":"聽","遇":"遇","时":"時","欢":"歡","栖":"棲","见":"見","雾":"霧","梦":"夢","书":"書","热":"熱","柠":"檸","云":"雲","麦":"麥","邮":"郵","观":"觀","软":"軟","团":"團","猫":"貓","叽":"嘰","宝":"寶","卷":"捲","酱":"醬","巅":"巔","无":"無","敌":"敵","钢":"鋼","枪":"槍","绝":"絕","杀":"殺","头":"頭","号":"號","战":"戰","术":"術","荣":"榮","传":"傳","说":"說","败":"敗","话":"話","双":"雙","猎":"獵","审":"審","领":"領","枭":"梟","国":"國","远":"遠","样":"樣","与":"與","随":"隨","执":"執","恋":"戀","动":"動","拥":"擁","间":"間","买":"買","当":"當","将":"將","后":"後","来":"來","满":"滿","压":"壓","独":"獨","飞":"飛","忆":"憶","经":"經","沧":"滄","难":"難","为":"為","约":"約","黄":"黃","卧":"臥","场":"場","树":"樹","鸦":"鴉","阔":"闊","凭":"憑","鱼":"魚","跃":"躍","丛":"叢","范":"範","里":"裡","只":"隻","万":"萬","亚":"亞","复":"復","复":"複","个":"個","汇":"匯","汉":"漢","红":"紅","东":"東","车":"車","贝":"貝","见":"見","纠":"糾","礼":"禮","让":"讓","门":"門","问":"問","华":"華","页":"頁","类":"類","义":"義","龙":"龍","电":"電","图形":"圖形","实":"實","学":"學","习":"習","师":"師","书":"書","术":"術","边":"邊","过":"過","还":"還","开":"開","关":"關","进":"進","远":"遠","运":"運","园":"園","圆":"圓","回":"迴","币":"幣","应":"應","总":"總","罗":"羅","网":"網","张":"張","护":"護","报":"報","担":"擔","抚":"撫","拥":"擁","权":"權","杂":"雜","板":"闆","极":"極","机":"機","权":"權","欢":"歡","环":"環","现":"現","画":"畫","表":"錶","诗":"詩","词":"詞","话":"話","语":"語","读":"讀","谁":"誰","变":"變","态":"態","认":"認","识":"識","译":"譯","页":"頁","顺":"順","须":"須","风":"風","飞":"飛","饭":"飯","饮":"飲","馆":"館","马":"馬","驼":"駝","鱼":"魚","鸟":"鳥","乌":"烏","处":"處","备":"備","复":"複","头":"頭","体":"體","党":"黨","宝":"寶","审":"審","宫":"宮","家":"家","寿":"壽","导":"導","寻":"尋","将":"將","尔":"爾","乐":"樂","务":"務","杀":"殺","条":"條","库":"庫","庙":"廟","应":"應","庆":"慶","广":"廣","废":"廢","张":"張","强":"強","归":"歸","当":"當","录":"錄","参":"參","戏":"戲","点":"點","炼":"煉","烛":"燭","烟":"煙","烧":"燒","烦":"煩","热":"熱","爱":"愛","爷":"爺","笔":"筆","纸":"紙","级":"級","统":"統","结":"結","绒":"絨","线":"線","练":"練","组":"組","绍":"紹","经":"經","终":"終","维":"維","网":"網","罗":"羅","美":"美","习":"習","职":"職","育":"育","胜":"勝","脑":"腦","脚":"腳","胀":"脹","临":"臨","监":"監","觉":"覺","览":"覽","贤":"賢","贵":"貴","买":"買","贷":"貸","贸":"貿","费":"費","贺":"賀","贼":"賊","赛":"賽","释":"釋","银":"銀","针":"針","铁":"鐵","铜":"銅","锐":"銳","镇":"鎮","长":"長","门":"門","闪":"閃","闻":"聞","阅":"閱","关":"關","队":"隊","阳":"陽","阴":"陰","阵":"陣","际":"際","陆":"陸","陈":"陳","险":"險","面":"麵","革":"革","页":"頁","项":"項","顺":"順","须":"須","顾":"顧","顿":"頓","领":"領","题":"題","风":"風","飞":"飛","食":"食","香":"香","驾":"駕","鱼":"魚","鸟":"鳥","麦":"麥","齐":"齊","齿":"齒","龙":"龍","龟":"龜"
+};
+function toTrad(s){let o="";for(const ch of s){o+=S2T[ch]||ch;}return o;}
+
+/* ============ 中文词库（简体，繁体由映射转换） ============ */
+const BANK = {
+  gufeng:{
+    a:["墨","染","青","寒","孤","清","醉","残","半","浅","南","北","暮","微","素","疏","冷","归","绾","挽","宿","迟","惊","空","淡","未","拾","枕","浮","敛"],
+    b:["笙","鸢","月","霜","辞","诀","衫","川","城","岛","灯","桥","岸","影","尘","墨","雪","竹","弦","锦","岚","棠","瓷","砂","釉","砚","鹤","鹿","舟","鲤"],
+    c:["落","辞","归","叹","殇","眠","吟","渡","诀","劫","歌","遥","宴","酌","鸢","予","昼","昔","安","初"],
+    fixed:["南风知我意","人间清醒客","一蓑烟雨","山月不知心底事","此间少年","事了拂衣去","白云千载空悠悠","欲买桂花同载酒","当时年少春衫薄","人间有味是清欢","半生烟雨半生愁","且将新火试新茶","醉后不知天在水","晚来天欲雪"]
+  },
+  wenyi:{
+    words:["余温","浅唱","潮汐","南风","旧巷","森屿","听风","迟遇","予安","时予","温言","半暖","孤岛","星河","晚舟","清欢","栖迟","见鹿","雾散","野渡","拾光","肆月","予你","晚宁","初见","白汐","挽风","山鬼","惊鸿","故梦","七秒","听海","枕书","慢热","予期","浮生","青柠","晚风","星稀","云栖","麦穗","旧年","邮差","折耳","等风","听雨","煮酒","观鹤","拾花","白雾","迟夏","南屿"],
+    fixed:["等风来","我在人间凑数","听风者","未能免俗","温柔半两","借火的人","把月亮关掉","贩卖黄昏","收集星光","寄给春天","与往事干杯","慢半拍先生"]
+  },
+  keai:{
+    a:["软","奶","甜","萌","团","糯","小","阿","橘","布","芝","酥","芋","泡","莓","椰","脆","桃"],
+    b:["糖","团","桃","兔","猫","汪","布丁","丸子","泡芙","奶茶","酥","糯","叽","宝","莓","卷","酱","球","仔","豆","栗","柚"],
+    fixed:["奶糖没头脑","一口吃掉你","小熊软糖","今天也想睡","布丁不分你","芋圆啵啵","草莓味的风","蜜桃乌龙","奶盖小怪兽","软乎乎星球","芝士就是力量","椰椰小甜饼"]
+  },
+  dianjing:{
+    a:["孤影","野王","狙神","巅峰","一打五","无敌","暗夜","残血","超神","逆风","钢枪","绝地","冷眸","十六杀","零封","头号","暴走","封神","战术","荣耀"],
+    b:["之刃","传说","不败","神话","战神","收割者","carry","一枪一个","上分","无双","猎手","荣光","风暴","审判","领域","王朝","枭雄","帝国"],
+    fixed:["人傻枪刚","枪法如挂","落地成盒","只送不杀","队友祭天法力无边","带四拐一","反向吃鸡","战术核弹","退休职业","电竞寡王","这把能赢","别投别投"]
+  },
+  en:{
+    a:["Silent","Shadow","Night","Frost","Storm","Luna","Neo","Cyber","Pixel","Nova","Echo","Crimson","Void","Astra","Zephyr","Onyx","Iron","Ember","Drift","Phantom","Nyx","Solar","Velvet","Ghost","Aurora","Raven"],
+    b:["Wolf","Fox","Raven","Star","Hunter","Ghost","King","Queen","Lord","Drift","Blade","Core","Sky","Rose","Pulse","Mind","Flame","Storm","Serpent","Vega","Wisp","Halo","Crest","Frost"],
+    fixed:["LostInTime","MidnightCity","NeonDreams","SilentKiller","IronWill","Afterglow","Blackout","ColdFire","Echoes","Oblivion","GlassHeart","NorthWind"]
+  },
+  ec:{
+    a:["永远的","千年的","迷途","星光","月下","彼岸","二次元","次元的","无敌","软萌","腹黑","中二","见习","最强"],
+    b:["酱","君","様","喵","殿","桜","星","夜","月","姬","控","柴","犬","桑","熊","猫","使","魔"],
+    fixed:["可爱的你酱","永远的十七岁","月下小太郎","笨蛋喵","中二病晚期","软萌小可爱","腹黑大魔王","次元破壁人","樱花开在脸上","见习魔法使","最强骑士君"]
+  },
+  shadiao:{
+    fixed:["退堂鼓表演艺术家","幼儿园扛把子","精神病院常驻","发际线保卫战冠军","国家一级退堂鼓表演艺术家","间歇性踌躇满志","废话文学研究生","靠脸吃饭失败者","一只柠檬精","社会主义接班人","网抑云患者","退堂鼓一级演奏家","贫穷打工人","奶茶续命专家","拖延症晚期","著名退堂鼓手","咸鱼翻身失败","梦里啥都有","颜值天花板（自封）","专业人士（划掉）","国家一级抬杠运动员","退堂鼓非物质文化遗产传承人"]
+  },
+  shiyi:{
+    fixed:["春风十里不如你","人间忽晚山河已秋","少年不识愁滋味","满船清梦压星河","疏影横斜水清浅","浮生若梦为欢几何","当时明月在曾照彩云归","落花人独立微雨燕双飞","青山一道同云雨","此情可待成追忆","人生若只如初见","曾经沧海难为水","似此星辰非昨夜","月上柳梢头人约黄昏后","醉卧沙场君莫笑","云想衣裳花想容","枯藤老树昏鸦","海阔凭鱼跃"]
+  },
+  couple:{
+    a:["予卿","念君","栖欢","枕安","听风","挽你","拾光","共暖","与鹿","随星","予你","见鹿","念安","栖迟","执手","与归"],
+    b:["半糖","微甜","初恋","心动","余生","清欢","相伴","相拥","如初","如故","四季","朝夕","星河","晚风","白头","不散"],
+    fixed:["你是我的四月天","余生请多指教","你的名字我的故事","一屋两人三餐四季","白茶清欢无别事","我在等风也在等你","予你余生","念你成疾","两处相思","共此星河"]
+  }
+};
+
+/* ============ 英文词库（每种风格独立） ============ */
+const EN_BANK = {
+  gufeng:{ words:["Silent Moon","Frost River","Crimson Pine","Drifting Snow","Pale Lotus","Misty Cloud","Lonely Star","Jade Bloom","Shadow Tide","Cold Echo","Autumn Flame","Winter Bamboo","Distant Mist","Faded Raven","Moonlit Verse","Snowfall Song"],
+    fixed:["South Wind Knows My Heart","A Life of Clear Joy","Drunken Beneath the Moon","Mountain Moon Knows Not the Heart","This Youth in Spring Robe","White Clouds a Thousand Years","Buying Osmanthus to Carry Wine","Half a Life of Mist and Rain","The Taste of the World Is Quiet Joy"] },
+  wenyi:{ words:["Tidal Echo","Warm Remnant","Southern Breeze","Old Lane","Forest Isle","Listening Wind","Late Encounter","Given Peace","Star River","Evening Boat","Quiet Joy","Dwelling","Seeing Deer","Fog Lifted","Wild Ferry","Picking Light","April","Night Harbor","Slow Warmth","Floating Life","Blue Lemon","Night Breeze","Cloud Nest","Wheat Ear","Old Year","Postal Clerk"],
+    fixed:["Waiting for the Wind","Counting Among the Mortals","The One Who Hears Wind","Unable to Escape the Mundane","Half Tenderness","The Person Who Borrows Fire","Switching Off the Moon","Selling Dusk","Collecting Starlight","Mailed to Spring"] },
+  keai:{ words:["Soft Candy","Milky Bun","Sweet Peach","Mochi Rabbit","Tiny Cat","Pudding Pup","Cotton Dumpling","Bunny Macaron","Berry Cookie","Coco Bear","Chewy Bean","Mellow Yogurt"],
+    fixed:["Brainless Candy","Gonna Eat You in One Bite","Little Bear Gummy","Wanna Sleep Today Too","Pudding Won't Share","Taro Bubbles","Strawberry-Scented Wind","Peach Oolong","Milky Little Monster","Squishy Planet"] },
+  dianjing:{ words:["Lone Shadow","Jungle King","Sniper God","Peak Slayer","Invincible Night","Low-HP Cold Eyes","Godlike Sixteen Kills","Shutout Ace","Berserk Tactics","Last Stand Glory","Steely Gunner","Reverse Storm"],
+    fixed:["Trash Aim God Gun","Aim Like Cheats","Landed in a Box","Only Feeds Never Kills","Sacrifice Teammate Gain Power","Carrying Four Noobs","Reverse Chicken Dinner","Tactical Nuke","Retired Pro","Solo King"] },
+  en:{ words:["SilentWolf","ShadowFox","NightRaven","FrostStar","StormHunter","LunaQueen","NeoLord","CyberBlade","PixelCore","NovaSky","EchoRose","CrimsonPulse","VoidMind","AstraFlame","ZephyrStorm","OnyxKing","IronGhost","EmberDrift","PhantomVega","SolarHalo"],
+    fixed:["LostInTime","MidnightCity","NeonDreams","SilentKiller","IronWill","Afterglow","Blackout","ColdFire","Echoes","Oblivion","GlassHeart","NorthWind"] },
+  ec:{ words:["Eternal Chan","Millennial Kun","Lost Starlight","Under-Moon Sama","Far-Shore Nya","2D Lover","Soft-Moe Hime","Scheming Demon","Chuuni Dono","Apprentice Bear","Strongest Knight","Sakura Star"],
+    fixed:["Cute You-Chan","Eternal Seventeen","Little Taro Under the Moon","Stupid Nya","Terminal Chuunibyou","Soft-Moe Cutie","Scheming Demon Lord","Dimension Breaker","Cherry Blossoms on the Face","Apprentice Magic User"] },
+  shadiao:{ words:[], fixed:["Retreat-Drum Performance Artist","Kindergarten Boss","Psych Ward Regular","Hairline Defense Champion","National First-Class Retreat Drummer","Intermittently Ambitious","Nonsense-Lit Researcher","Failed to Live Off Looks","A Lemon Essence","Socialist Successor","NetEase-Cloud Patient","First-Class Retreat-Drum Player","Poor Worker","Milk-Tea Dependence Expert","Chronic Procrastinator","Famous Retreat Drummer","Failed Salted-Fish Flip","Everything in Dreams","Self-Proclaimed Beauty Ceiling","Professional (strike through)","National First-Class Argue Athlete","Intangible Cultural Heritage Inheritor of Retreat Drum"] },
+  shiyi:{ words:[], fixed:["Spring Breeze Ten Li Not as Good as You","The World Suddenly Late, Hills and Rivers Already Autumn","Youth Knows Not the Taste of Sorrow","A Boat Full of Clear Dreams Pressing the Star River","Sparse Shadows Slant on Clear Shallow Water","Life Is But a Dream, How Much Joy","The Moon Then Shone, Once Lit the Colored Clouds","Fallen Flowers Stand Alone, Swallows Fly in Pairs in Drizzle","Green Hills Share the Same Cloud and Rain","This Feeling Can Be Recalled as a Lost Memory","If Life Were But as First Meeting","Once the Sea Was Water","Like These Stars Not of Last Night","Moon on the Willow Top, Rendezvous at Dusk","Drunk Lying on the Sand, Pray Do Not Laugh","Clouds Wish for Dress, Flowers for Looks","Withered Vine, Old Tree, Dim Crow","The Sea Wide, Fish Leap"] },
+  couple:{ words:["To-You Half-Sugar","Thinking-of-You Slight-Sweet","Dwelling-Joy First-Love","Pillow-Peace Heartbeat","Listening-Wind Rest-of-Life","Holding-You Quiet-Joy","Picking-Light Together","Shared-Warmth Embrace","With-Deer As-Before","Following-Star As-Always","Given-You Four-Seasons","Seeing-Deer Day-and-Night","Remembering-Peace Star-River","Dwelling-Late Evening-Breeze","Hand-in-Hand White-Head","Returning-With Never-Apart"],
+    fixed:["You Are My April Sky","The Rest of Life, Please Advise","Your Name, My Story","One House, Two People, Three Meals, Four Seasons","White Tea, Quiet Joy, Nothing Else","I Wait for Wind and Also for You","Give You the Rest of Life","Thinking of You Becomes Illness","Two Places, Mutual Longing","Share This Star River"] }
+};
+
+/* ============ 日文词库（每种风格独立） ============ */
+const JA_BANK = {
+  gufeng:{ words:["墨染青衫","南風知意","一蓑煙雨","山月不知","寒山遠影","孤舟残雪","疏影横斜","白露为霜","煙雨江南","墨色長卷","古剣清歌","清歡半盞","青鸞信渺","闌珊燭影","滄海明月","浮生若夢"],
+    fixed:["南風知我意","人間清醒客","一蓑煙雨任平生","山月不知心底事","此間少年","白雲千載空悠悠","欲買桂花同載酒","当時年少春衫薄","人間有味是清歡","半生煙雨半生愁","且將新火試新茶","醉後不知天在水"] },
+  wenyi:{ words:["余韻","浅き唄","潮の音","南風","古き路地","森の島","風を聴く","遅き出会い","与えられし安らぎ","星河","宵の舟","清らかな歓び","棲み処","鹿を見る","霧晴れ","野の渡し","光を拾う","四月","宵の寧","白き汐","風を挽く","山の鬼","驚く鴻","古き夢"],
+    fixed:["風を待つ","人間の数を埋める","風の聴き手","俗を免れ得ず","優しき半両","火を借りる人","月を消す","黄昏を売る","星を集める","春に宛てる"] },
+  keai:{ words:["ふわしゃ","みるくだんご","甘もも","もちうさぎ","ちいさねこ","あんこぷりん","橘まる","ぶどうくん","ちーずべり","かりんまき","ゆべにゃ","こころっこ"],
+    fixed:["キャンディーは頭がない","一口で食べちゃう","小熊のグミ","今日も寝たい","ぷりんは分けない","たろこぶつぶ","いちごの風","もも乌龙","みるくの小怪物","ふわふわ星"] },
+  dianjing:{ words:["孤影","ジャングルキング","スナイパー神","ピークスレイヤー","無敵の夜","低HP冷たい目","神格化十六キル","完封エース","暴走戦術","最終防衛栄光","鋼鉄銃士","逆風ストーム"],
+    fixed:["下手だが銃は硬い","エイムはチート","着地は箱","only feed","チームメイト犠牲でパワーアップ","四匹連れて一人","逆チキン","戦術核弾","引退プロ","ソロ王"] },
+  en:{ words:["SilentWolf","ShadowFox","NightRaven","FrostStar","StormHunter","LunaQueen","NeoLord","CyberBlade","PixelCore","NovaSky","EchoRose","CrimsonPulse","VoidMind","AstraFlame","ZephyrStorm","OnyxKing","IronGhost","EmberDrift","PhantomVega","SolarHalo"],
+    fixed:["LostInTime","MidnightCity","NeonDreams","SilentKiller","IronWill","Afterglow","Blackout","ColdFire","Echoes","Oblivion","GlassHeart","NorthWind"] },
+  ec:{ words:["永遠ちゃん","千年くん","迷いスターライト","月下さま","彼岸にゃ","二次元ラバー","柔もえ姫","腹黒デーモン","中二どの","見習いベア","最強ナイト","桜スター"],
+    fixed:["可愛いあなたちゃん","永遠の十七歳","月下の小太郎","ばかにゃ","中二病終末期","柔もえ可愛い","腹黒大魔王","次元突破者","桜は顔に咲く","見習い魔法使い"] },
+  shadiao:{ words:[], fixed:["退堂鼓演芸家","幼稚園のボス","精神病院常連","生え際防衛戦チャンピオン","国家一級退堂鼓演芸家","間歇的野心家","戯言文学研究者","顔で食べて失敗","一匹の檸檬精","社会主義後継者","ネット雲患者","一級退堂鼓奏者","貧乏労働者","ミルクティ依存専門家","慢性先延ばし","有名な退堂鼓手","塩漬け魚返し失敗","夢の中だけ","自封颜值天井","プロ（取消）","国家一級口喧嘩選手","退堂鼓無形文化遺産継承者"] },
+  shiyi:{ words:[], fixed:["春風十里有你","世の中ふと遅く山河すでに秋","少年愁の味を知らず","満船の清夢星河を圧す","疎影斜めに清き浅き水に","浮生夢のごとく歓び幾許か","当時明月在りてかつて彩雲を照らす","落花人独り立ち微雨燕双び飛ぶ","青山一道雲雨を同じくす","この情は追憶として成るべし","もし生が初めのごとくならば","かつて滄海は水に難し","昨夜のごときにあらざる星辰","柳の梢頭月、黄昏に人約す","沙場に酔って臥す君笑うことなかれ","雲衣を想い花容を求む","枯藤老樹昏鴉","海闊かに魚躍る"] },
+  couple:{ words:["君への半糖","君を想う微甘","棲み処の初恋","枕の安らぎ","風を聴く余生","君を抱く清歓","光を拾う共に","分かち合う温もり","鹿と共に昔のごとく","星に随う常のごとく","君に与う四季","鹿を見る朝夕","安らぎを念う星河","遅き棲み処宵風","手を執り白頭","帰りて共に離れず"],
+    fixed:["君は僕の四月の空","余生よどうか教えよ","君の名は僕の物語","一軒二人文三食四季","白茶清歓他事無し","風を待つと共に君を待つ","君に余生を与う","君を想うは病となる","二つの地互いに想う","この星河を共に"] }
+};
+
+/* ============ 生成逻辑 ============ */
+let curLang=(function(){var p=new URLSearchParams(location.search).get("lang");if(p&&/^(zh|zht|en|ja)$/.test(p))return p;try{var s=localStorage.getItem("nick_lang");if(s&&["zh","zht","en","ja"].indexOf(s)>=0)return s;}catch(e){}return "zh";})();
+let curStyle="gufeng";
+const favs = JSON.parse(localStorage.getItem("nick_favs")||"[]");
+
+const $=(s)=>document.querySelector(s);
+const stylesEl=$("#styles"), resultsEl=$("#results"), favEl=$("#favList"), langsEl=$("#langs");
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+function genChinese(style,kw){
+  const b=BANK[style];
+  const useKw = kw && Math.random()<0.55;
+  switch(style){
+    case "gufeng":{
+      if(Math.random()<0.18) return pick(b.fixed);
+      if(useKw) return kw + pick(b.b) + (Math.random()<.5?pick(b.c):"");
+      const r=Math.random();
+      if(r<0.4) return pick(b.a)+pick(b.b);
+      if(r<0.7) return pick(b.b)+pick(b.c);
+      return pick(b.a)+pick(b.b)+pick(b.c);
+    }
+    case "wenyi":{ if(Math.random()<0.2) return pick(b.fixed); if(useKw) return kw+pick(b.words); return pick(b.words); }
+    case "keai":{ if(Math.random()<0.2) return pick(b.fixed); if(useKw) return kw+pick(b.b); return pick(b.a)+pick(b.b); }
+    case "dianjing":{ if(Math.random()<0.22) return pick(b.fixed); if(useKw) return kw+pick(b.b); return pick(b.a)+pick(b.b); }
+    case "en":{ if(Math.random()<0.18) return pick(b.fixed); let s=pick(b.a)+pick(b.b); if(useKw) s=kw+s; if(Math.random()<0.4) s+=Math.floor(Math.random()*90+10); return s; }
+    case "ec":{ if(Math.random()<0.2) return pick(b.fixed); if(useKw&&Math.random()<0.5) return kw+pick(b.b); return pick(b.a)+pick(b.b); }
+    case "shadiao": return pick(b.fixed);
+    case "shiyi": return pick(b.fixed);
+    case "couple":{ if(Math.random()<0.22) return pick(b.fixed); if(useKw) return kw+pick(b.b); return pick(b.a)+pick(b.b); }
+  }
+  return "网名";
+}
+
+function genFromBank(bank,kw){
+  const useKw = kw && Math.random()<0.5;
+  const pool = (bank.words && bank.words.length) ? bank.words : bank.fixed;
+  let s = (bank.words && bank.words.length && Math.random()<0.65) ? pick(bank.words) : pick(bank.fixed||bank.words);
+  if(useKw){ const sep = curLang==="ja" ? "・" : " "; s = kw + sep + s; }
+  return s;
+}
+
+function genOne(style,kw){
+  if(curLang==="en") return genFromBank(EN_BANK[style],kw);
+  if(curLang==="ja") return genFromBank(JA_BANK[style],kw);
+  let s = genChinese(style,kw);
+  if(curLang==="zht") s = toTrad(s);
+  return s;
+}
+
+/* ============ 渲染 ============ */
+function renderStyleChips(){
+  stylesEl.innerHTML="";
+  STYLE_ORDER.forEach(k=>{
+    const c=document.createElement("div");
+    c.className="chip"+(k===curStyle?" active":"");
+    c.dataset.k=k;
+    c.textContent=STYLE_NAMES[curLang][k];
+    stylesEl.appendChild(c);
+  });
+}
+
+function applyI18N(){
+  const t=I18N[curLang];
+  $("#eyebrow").textContent=t.eyebrow;
+  $("#title").textContent=t.title;
+  $("#sub").textContent=t.sub;
+  $("#langLabel").textContent=t.langLabel;
+  $("#styleLabel").textContent=t.styleLabel;
+  $("#kwLabel").textContent=t.kwLabel;
+  $("#kw").placeholder=t.kwPlaceholder;
+  $("#numLabel").textContent=t.numLabel;
+  $("#gen").textContent=t.gen;
+  $("#copyAll").textContent=t.copyAll;
+  $("#resLabel").textContent=t.resLabel;
+  $("#favLabel").textContent=t.favLabel;
+  $("#footer").textContent=t.footer;document.title="网名生成器 · "+t.title;document.documentElement.setAttribute("lang",curLang==="zh"?"zh-CN":(curLang==="zht"?"zh-Hant":(curLang==="en"?"en":"ja")));
+}
+
+function toast(msg){
+  const t=$("#toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1400);
+}
+
+function renderFavs(){
+  if(!favs.length){favEl.innerHTML='<span class="empty">'+I18N[curLang].favEmpty+'</span>';return;}
+  favEl.innerHTML="";
+  favs.forEach((n,i)=>{
+    const tag=document.createElement("div");
+    tag.className="fav-tag";
+    tag.innerHTML=`<span>${n}</span><b data-i="${i}" title="移除">✕</b>`;
+    favEl.appendChild(tag);
+  });
+  favEl.querySelectorAll("b").forEach(b=>{
+    b.onclick=()=>{favs.splice(+b.dataset.i,1);localStorage.setItem("nick_favs",JSON.stringify(favs));renderFavs();toast("✕");};
+  });
+}
+
+function render(names){
+  resultsEl.innerHTML="";
+  names.forEach((n,i)=>{
+    const card=document.createElement("div");
+    card.className="name-card";
+    card.style.animationDelay=(i*0.025)+"s";
+    const loved=favs.includes(n);
+    card.innerHTML=`<div class="txt">${n}</div>
+      <div class="acts">
+        <div class="mini love ${loved?"on":""}" title="♥">♥</div>
+        <div class="mini cp" title="⧉">⧉</div>
+      </div>`;
+    card.querySelector(".love").onclick=function(){
+      if(favs.includes(n)){favs.splice(favs.indexOf(n),1);this.classList.remove("on");toast("♡");}
+      else{favs.push(n);this.classList.add("on");toast("♥ saved");}
+      localStorage.setItem("nick_favs",JSON.stringify(favs));renderFavs();
+    };
+    card.querySelector(".cp").onclick=()=>{navigator.clipboard.writeText(n);toast("copied: "+n);};
+    resultsEl.appendChild(card);
+  });
+}
+
+function generate(){
+  const kw=$("#kw").value.trim();
+  const n=+$("#count").value;
+  const set=new Set();
+  let guard=0;
+  while(set.size<n && guard<n*8){ set.add(genOne(curStyle,kw)); guard++; }
+  render([...set]);
+}
+
+/* ============ 事件 ============ */
+stylesEl.addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c)return;
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
+  c.classList.add("active");
+  curStyle=c.dataset.k;
+  generate();
+});
+langsEl.addEventListener("click",e=>{
+  const c=e.target.closest(".lang-chip"); if(!c)return;
+  document.querySelectorAll(".lang-chip").forEach(x=>x.classList.remove("active"));
+  c.classList.add("active");
+  curLang=c.dataset.l;
+  try{localStorage.setItem("nick_lang",curLang);}catch(e){}
+  applyI18N();
+  renderStyleChips();
+  renderFavs();
+  generate();
+});
+$("#gen").onclick=generate;
+$("#copyAll").onclick=()=>{
+  const all=[...resultsEl.querySelectorAll(".txt")].map(e=>e.textContent).join("\n");
+  if(!all)return;
+  navigator.clipboard.writeText(all);
+  toast("copied "+[...resultsEl.querySelectorAll(".txt")].length);
+};
+
+applyI18N();
+renderStyleChips();
+renderFavs();
+generate();
+</script>
+<script>
+window.NICK_SEO_I18N={"zh": {"siteName": "网名生成器", "seo.h1": "网名生成器指南 · 常见问题", "seo.intro": "本站为纯前端网名生成器：古风、文艺、可爱、电竞、英文、二次元、沙雕、诗意、情侣共 9 种风格，支持偏好词融入与一键收藏，可批量生成不重复的网名、游戏ID与昵称。", "seo.q1": "怎么起一个不重名、又好听的好网名？", "seo.q1p": "先用上方「偏好词」填 1–2 个你喜欢的字（星、鹿、moon 都行），再选一个风格，工具会在词库组合中随机抽取并自动去重；生成 12–40 个后，重复率极低。想要更小众，避开热门字（雨、梦、浅），用「沙雕」「诗意」等长尾风格，撞名概率更低。", "seo.q2": "古风、文艺类网名怎么取才有味道？", "seo.q2p": "古风网名讲究意象：取《诗经》《楚辞》里的字（如「蒹葭」「江离」），或用单字组合「墨」「青」「岚」，避免生僻到无人能读的繁体。文艺风则用「动词＋名词」结构，如「拾光」「等风」，比纯名词更有画面感。", "seo.q3": "情侣网名怎么搭配才不尴尬？", "seo.q3p": "选「情侣」风格，工具会按对仗词库配对（予你/念你、晚风/清欢），再让对方换顺序或换一个字（听风 → 望山），保持同一个画面但各自独立。避免「老公/老婆」直白款，意象款（如「我的四月天」）更耐看。", "seo.q4": "游戏ID、电竞风格网名有什么讲究？", "seo.q4p": "游戏ID要短（3–6 字）、好念、无生僻字，方便队友喊你；电竞风常用「称号＋武器/动作」结构（孤影之刃、狙神传说），加数字后缀偏爱 16、7、9 这类，避免乱码字母堆叠。", "seo.q5": "英文或二次元昵称怎么起？", "seo.q5p": "英文昵称推荐「前缀＋后缀」直接组合（SilentWolf、NovaSky），或取一个词加数字；二次元日系昵称常用「名字＋ちゃん/くん」或软萌词（もちうさぎ）。所有风格都能在你的偏好词基础上融合，避免纯机翻感。", "seo.h2ref": "参考与延伸阅读", "seo.li1": "《现代汉语词典》在线版 · 查字与起名用字参考：<a href=\"https://hanyu.baidu.com\" target=\"_blank\" rel=\"noopener\">hanyu.baidu.com</a>", "seo.li2": "Behind The Name · 英文/日文名字来源考据：<a href=\"https://www.behindthename.com\" target=\"_blank\" rel=\"noopener\">behindthename.com</a>", "seo.li3": "Etymonline · 英文词源与用法演化：<a href=\"https://www.etymonline.com\" target=\"_blank\" rel=\"noopener\">etymonline.com</a>", "seo.li4": "维基百科 · 姓名与命名学条目：<a href=\"https://zh.wikipedia.org/wiki/姓名\" target=\"_blank\" rel=\"noopener\">zh.wikipedia.org</a>", "seo.friend": "更多在线工具：<a href=\"https://li00000.xyz/\" target=\"_blank\" rel=\"noopener\">在线PS</a> · <a href=\"https://blog.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">博客</a> · <a href=\"https://tjtkw.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">健身体脂计算器</a> · <a href=\"https://calsa.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">时区倒计时</a> · <a href=\"https://bmuws.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">烘焙换算</a> · <a href=\"https://bwzib.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">篝火燃料估算</a>", "seo.fine": "本页名称均由词库随机组合生成，可能与他人已有网名巧合雷同；涉及注册商标或已广为人知的名称请自行避让。"}, "zht": {"siteName": "網名生成器", "seo.h1": "網名生成器指南 · 常見問題", "seo.intro": "本站為純前端網名生成器：古風、文藝、可愛、電競、英文、二次元、沙雕、詩意、情侶共 9 種風格，支持偏好詞融入與一鍵收藏，可批量生成不重複的網名、遊戲ID與暱稱。", "seo.q1": "怎麼起一個不重名、又好聽的好網名？", "seo.q1p": "先用上方「偏好詞」填 1–2 個你喜愛的字（星、鹿、moon 都行），再選一個風格，工具會在詞庫組合中隨機抽取並自動去重；生成 12–40 個後，重複率極低。想要更小眾，避開熱門字（雨、夢、淺），用「沙雕」「詩意」等長尾風格，撞名機率更低。", "seo.q2": "古風、文藝類網名怎麼取才有味道？", "seo.q2p": "古風網名講究意象：取《詩經》《楚辭》裡的字（如「蒹葭」「江離」），或用單字組合「墨」「青」「嵐」，避免生僻到無人能讀的繁体。文藝風則用「動詞＋名詞」結構，如「拾光」「等風」，比純名詞更有畫面感。", "seo.q3": "情侶網名怎麼搭配才不尷尬？", "seo.q3p": "選「情侶」風格，工具會按對仗詞庫配對（予你/念你、晚風/清歡），再讓對方換順序或換一個字（聽風 → 望山），保持同一個畫面但各自獨立。避免「老公/老婆」直白款，意象款（如「我的四月天」）更耐看。", "seo.q4": "遊戲ID、電競風格網名有什麼講究？", "seo.q4p": "遊戲ID要短（3–6 字）、好念、無生僻字，方便隊友喊你；電競風常用「稱號＋武器/動作」結構（孤影之刃、狙神傳說），加數字後綴偏愛 16、7、9 這類，避免亂碼字母堆疊。", "seo.q5": "英文或二次元暱稱怎麼起？", "seo.q5p": "英文暱稱推薦「前綴＋後綴」直接組合（SilentWolf、NovaSky），或取一個詞加數字；二次元日系暱稱常用「名字＋ちゃん/くん」或軟萌詞（もちうさぎ）。所有風格都能在你的偏好詞基礎上融合，避免純機翻感。", "seo.h2ref": "參考與延伸閱讀", "seo.li1": "《現代漢語詞典》在線版 · 查字與起名用字參考：<a href=\"https://hanyu.baidu.com\" target=\"_blank\" rel=\"noopener\">hanyu.baidu.com</a>", "seo.li2": "Behind The Name · 英文/日文名字來源考據：<a href=\"https://www.behindthename.com\" target=\"_blank\" rel=\"noopener\">behindthename.com</a>", "seo.li3": "Etymonline · 英文詞源與用法演化：<a href=\"https://www.etymonline.com\" target=\"_blank\" rel=\"noopener\">etymonline.com</a>", "seo.li4": "維基百科 · 姓名與命名學條目：<a href=\"https://zh.wikipedia.org/wiki/姓名\" target=\"_blank\" rel=\"noopener\">zh.wikipedia.org</a>", "seo.friend": "更多在線工具：<a href=\"https://li00000.xyz/\" target=\"_blank\" rel=\"noopener\">在線PS</a> · <a href=\"https://blog.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">部落格</a> · <a href=\"https://tjtkw.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">健身體脂計算器</a> · <a href=\"https://calsa.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">時區倒數計時</a> · <a href=\"https://bmuws.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">烘焙換算</a> · <a href=\"https://bwzib.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">篝火燃料估算</a>", "seo.fine": "本頁名稱均由詞庫隨機組合生成，可能與他人已有網名巧合雷同；涉及註冊商標或已廣為人知的名稱請自行避讓。"}, "en": {"siteName": "Nickname Generator", "seo.h1": "Nickname Generator Guide & FAQ", "seo.intro": "A pure-frontend nickname generator with 9 styles — ancient Chinese, literary, cute, gaming, English, anime, quirky, poetic and couple — with keyword blending, favorites and batch generation of unique nicknames, game IDs and handles.", "seo.q1": "How do I get a nickname that sounds good and is unlikely to be taken?", "seo.q1p": "Drop 1–2 favorite characters into the keyword box (star, deer, moon — anything), pick a style, and the tool samples from its word banks with automatic dedup; after 12–40 results, overlap is minimal. For rarer picks, avoid overused letters and try the quirky or poetic styles.", "seo.q2": "How do I make ancient-style or literary nicknames actually feel literary?", "seo.q2p": "Ancient-style names live on imagery: borrow characters from the Shijing and Chuci (e.g. 蒹葭, 江离) or pair single characters like 墨, 青, 岚 — but avoid variants no one can read. Literary names work best as verb+noun pairs (拾光, 等风) that sketch a small scene.", "seo.q3": "What makes a couple-nickname pair work without being cringey?", "seo.q3p": "Use the couple style: the banks pair antithetical terms (予你/念你, 晚风/清欢). Let your partner swap the order or one character (听风 → 望山) so both share the same image but stand alone. Skip literal 老公/老婆 pairs — imagery pairs age better.", "seo.q4": "What are the conventions for gaming IDs and esports-style names?", "seo.q4p": "Keep game IDs short (3–6 characters), pronounceable, free of obscure glyphs, so teammates can call you out; esports-style names often pair a title with a weapon or action (孤影之刃, 狙神传说). Numeric suffixes favor 16, 7, 9 — skip random letter soup.", "seo.q5": "How do I build a good English or anime-style handle?", "seo.q5p": "For English handles, combine a prefix and suffix directly (SilentWolf, NovaSky) or take one word plus a number. Japanese anime-style handles typically append ちゃん/くん to a name or use soft moe words (もちうさぎ). Every style blends with your keyword so results never feel machine-translated.", "seo.h2ref": "References & further reading", "seo.li1": "Modern Mandarin Dictionary (online) · character reference: <a href=\"https://hanyu.baidu.com\" target=\"_blank\" rel=\"noopener\">hanyu.baidu.com</a>", "seo.li2": "Behind The Name · name-origin research: <a href=\"https://www.behindthename.com\" target=\"_blank\" rel=\"noopener\">behindthename.com</a>", "seo.li3": "Etymonline · English word origins: <a href=\"https://www.etymonline.com\" target=\"_blank\" rel=\"noopener\">etymonline.com</a>", "seo.li4": "Wikipedia · surnames & naming conventions: <a href=\"https://en.wikipedia.org/wiki/Name\" target=\"_blank\" rel=\"noopener\">en.wikipedia.org</a>", "seo.friend": "More online tools: <a href=\"https://li00000.xyz/\" target=\"_blank\" rel=\"noopener\">Online PS</a> · <a href=\"https://blog.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">Blog</a> · <a href=\"https://tjtkw.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">Body-fat calculator</a> · <a href=\"https://calsa.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">Time-zone countdown</a> · <a href=\"https://bmuws.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">Baking converter</a> · <a href=\"https://bwzib.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">Campfire fuel estimator</a>", "seo.fine": "All names are generated by random combinations from the word banks and may coincidentally match existing nicknames; avoid registered trademarks and widely known names."}, "ja": {"siteName": "名前生成器", "seo.h1": "名前生成ガイドとよくある質問", "seo.intro": "フロントエンド-only のネットネーム（ニックネーム）生成器。古典・文芸・かわいい・ゲーム・英語・2次元・バカバカしい・詩的・カップルの9スタイル。キーワード混ぜ込み、お気に入り保存、重複なしのバッチ生成に対応。", "seo.q1": "重複しにくい、雰囲気の良いネットネームはどう作ればいい？", "seo.q1p": "キーワード欄に好きな文字1〜2字（星・鹿・moonなど）を入れてスタイルを選ぶと、語彙庫から自動重複除去しながらランダム生成します。12〜40個作ると重複はほぼゼロ。希少さを求めるなら、人気の高い字（雨・夢・浅）を避け、「バカバカしい」「詩的」スタイルが狙い目。", "seo.q2": "古典・文芸系のネームを素敵に見せるコツは？", "seo.q2p": "古典系は「象徴」が命：詩経・楚辞の字（蒹葭・江離など）や一字「墨・青・嵐」の組み合わせが定番ですが、読めない僻字は避ける。文芸系は「動詞＋名詞」（拾光・等風）がより画面感を演出。", "seo.q3": "カップルネームの組み合わせ方、恥ずかしくならないコツは？", "seo.q3p": "「カップル」スタイルを使うと対比語庫でペア生成（予你/念你、晚风/清欢）。相手に語順を入れ替え、または一字だけ替えて（听风 → 望山）同じ絵を残しつつ別個体にする。ストレートな「旦那/奥さん」系より、象徴ペアの方が飽きにくい。", "seo.q4": "ゲームID・ゲーム系ネームの作法は？", "seo.q4p": "ゲームIDは短く（3〜6文字）、言いやすく、僻字なしを基本に、味方がコールできることが重要。ゲーム風は「称号＋武器/動作」（孤影之刃、狙神传说）が定番。数字サフィックスは 16・7・9 系統が人気。", "seo.q5": "英語・2次元系のハンドルは？", "seo.q5p": "英語は接頭辞＋接尾辞の直結（SilentWolf、NovaSky）か、単語＋数字が基本。2次元系は「名詞＋ちゃん/くん」や萌え系単語（もちうさぎ）が定番。全スタイルがキーワードと融合するので機械翻訳感は出ない。", "seo.h2ref": "参考リンク", "seo.li1": "『現代中国語辞典』オンライン版 · 字の確認：<a href=\"https://hanyu.baidu.com\" target=\"_blank\" rel=\"noopener\">hanyu.baidu.com</a>", "seo.li2": "Behind The Name · 名前由来の調査：<a href=\"https://www.behindthename.com\" target=\"_blank\" rel=\"noopener\">behindthename.com</a>", "seo.li3": "Etymonline · 英語語源：<a href=\"https://www.etymonline.com\" target=\"_blank\" rel=\"noopener\">etymonline.com</a>", "seo.li4": "ウィキペディア · 人名・命名法：<a href=\"https://ja.wikipedia.org/wiki/名前\" target=\"_blank\" rel=\"noopener\">ja.wikipedia.org</a>", "seo.friend": "その他のオンラインツール：<a href=\"https://li00000.xyz/\" target=\"_blank\" rel=\"noopener\">オンラインPS</a> · <a href=\"https://blog.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">ブログ</a> · <a href=\"https://tjtkw.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">体脂肪計算</a> · <a href=\"https://calsa.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">時差カウントダウン</a> · <a href=\"https://bmuws.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">ベーカリー換算</a> · <a href=\"https://bwzib.li00000.xyz/\" target=\"_blank\" rel=\"noopener\">焚き火燃料</a>", "seo.fine": "ページ上の名称はすべて語彙庫のランダム組み合わせで生成され、既存ネームと偶然一致することがあります。商標登録済み・広く知られた名称はご注意ください。"}};</script>
+<section id="nickSeo" style="max-width:940px;margin:8px auto 0;position:relative;z-index:1;">
+  <div class="panel" style="margin-bottom:22px;">
+    <span class="label" style="display:block;margin-bottom:12px;" data-nl="seo.h1">网名生成器指南 · 常见问题</span>
+    <p style="font-weight:500;font-size:14px;line-height:1.9;color:var(--ink);" data-nl="seo.intro">本站为纯前端网名生成器：古风、文艺、可爱、电竞、英文、二次元、沙雕、诗意、情侣共 9 种风格，支持偏好词融入与一键收藏，可批量生成不重复的网名、游戏ID与昵称。</p>
+    <h3 data-nl="seo.q1">怎么起一个不重名、又好听的好网名？</h3>
+    <p data-nl="seo.q1p">先用上方「偏好词」填 1–2 个你喜欢的字（星、鹿、moon 都行），再选一个风格，工具会在词库组合中随机抽取并自动去重；生成 12–40 个后，重复率极低。想要更小众，避开热门字（雨、梦、浅），用「沙雕」「诗意」等长尾风格，撞名概率更低。</p>
+    <h3 data-nl="seo.q2">古风、文艺类网名怎么取才有味道？</h3>
+    <p data-nl="seo.q2p">古风网名讲究意象：取《诗经》《楚辞》里的字（如「蒹葭」「江离」），或用单字组合「墨」「青」「岚」，避免生僻到无人能读的繁体。文艺风则用「动词＋名词」结构，如「拾光」「等风」，比纯名词更有画面感。</p>
+    <h3 data-nl="seo.q3">情侣网名怎么搭配才不尴尬？</h3>
+    <p data-nl="seo.q3p">选「情侣」风格，工具会按对仗词库配对（予你/念你、晚风/清欢），再让对方换顺序或换一个字（听风 → 望山），保持同一个画面但各自独立。避免「老公/老婆」直白款，意象款（如「我的四月天」）更耐看。</p>
+    <h3 data-nl="seo.q4">游戏ID、电竞风格网名有什么讲究？</h3>
+    <p data-nl="seo.q4p">游戏ID要短（3–6 字）、好念、无生僻字，方便队友喊你；电竞风常用「称号＋武器/动作」结构（孤影之刃、狙神传说），加数字后缀偏爱 16、7、9 这类，避免乱码字母堆叠。</p>
+    <h3 data-nl="seo.q5">英文或二次元昵称怎么起？</h3>
+    <p data-nl="seo.q5p">英文昵称推荐「前缀＋后缀」直接组合（SilentWolf、NovaSky），或取一个词加数字；二次元日系昵称常用「名字＋ちゃん/くん」或软萌词（もちうさぎ）。所有风格都能在你的偏好词基础上融合，避免纯机翻感。</p>
+    <h2 style="font-family=&quot;Noto Serif SC&quot;,&quot;Noto Serif JP&quot;,serif;font-size:18px;margin:22px 0 10px;font-weight:800;" data-nl="seo.h2ref">参考与延伸阅读</h2>
+    <ul style="list-style:none;font-size:14px;line-height:2;">
+    <li data-nl="seo.li1">《现代汉语词典》在线版 · 查字与起名用字参考：<a href="https://hanyu.baidu.com" target="_blank" rel="noopener">hanyu.baidu.com</a></li>
+    <li data-nl="seo.li2">Behind The Name · 英文/日文名字来源考据：<a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a></li>
+    <li data-nl="seo.li3">Etymonline · 英文词源与用法演化：<a href="https://www.etymonline.com" target="_blank" rel="noopener">etymonline.com</a></li>
+    <li data-nl="seo.li4">维基百科 · 姓名与命名学条目：<a href="https://zh.wikipedia.org/wiki/姓名" target="_blank" rel="noopener">zh.wikipedia.org</a></li>
+    </ul>
+    <p style="font-size:14px;margin-top:14px;line-height:1.9;" data-nl="seo.friend">更多在线工具：<a href="https://li00000.xyz/" target="_blank" rel="noopener">在线PS</a> · <a href="https://blog.li00000.xyz/" target="_blank" rel="noopener">博客</a> · <a href="https://tjtkw.li00000.xyz/" target="_blank" rel="noopener">健身体脂计算器</a> · <a href="https://calsa.li00000.xyz/" target="_blank" rel="noopener">时区倒计时</a> · <a href="https://bmuws.li00000.xyz/" target="_blank" rel="noopener">烘焙换算</a> · <a href="https://bwzib.li00000.xyz/" target="_blank" rel="noopener">篝火燃料估算</a></p>
+    <p style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.7;" data-nl="seo.fine">本页名称均由词库随机组合生成，可能与他人已有网名巧合雷同；涉及注册商标或已广为人知的名称请自行避让。</p>
+  </div>
+</section>
+</body>
+</html>
