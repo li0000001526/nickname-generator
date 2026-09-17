@@ -228,6 +228,33 @@
 
 <div class="toast" id="toast"></div>
 
+
+<script>
+/* nickSeo i18n v1 */
+(function(){
+  function renderNickSeo(){
+    if(!window.NICK_SEO_I18N) return;
+    var c = (typeof curLang !== "undefined") ? curLang : "zh";
+    var key = c === "zht" ? "zht" : c;
+    var d = window.NICK_SEO_I18N[key] || window.NICK_SEO_I18N.zh;
+    document.querySelectorAll("#nickSeo [data-nl]").forEach(function(el){
+      var k = el.getAttribute("data-nl");
+      var v = d[k];
+      if(v == null) return;
+      if(el.getAttribute("data-mode") === "html") el.innerHTML = v;
+      else el.textContent = v;
+    });
+  }
+  window.renderNickSeo = renderNickSeo;
+  document.addEventListener("DOMContentLoaded", function(){
+    renderNickSeo();
+    var sw = document.getElementById("langs");
+    if(!sw) return;
+    sw.addEventListener("click", function(){ setTimeout(renderNickSeo, 0); }, true);
+    sw.addEventListener("change", function(){ setTimeout(renderNickSeo, 0); }, true);
+  });
+})();
+</script>
 <script>
 /* ============ 国际化文案 ============ */
 const I18N = {
@@ -523,12 +550,12 @@ window.NICK_SEO_I18N={"zh": {"siteName": "网名生成器", "seo.h1": "网名生
     <p data-nl="seo.q5p">英文昵称推荐「前缀＋后缀」直接组合（SilentWolf、NovaSky），或取一个词加数字；二次元日系昵称常用「名字＋ちゃん/くん」或软萌词（もちうさぎ）。所有风格都能在你的偏好词基础上融合，避免纯机翻感。</p>
     <h2 style="font-family=&quot;Noto Serif SC&quot;,&quot;Noto Serif JP&quot;,serif;font-size:18px;margin:22px 0 10px;font-weight:800;" data-nl="seo.h2ref">参考与延伸阅读</h2>
     <ul style="list-style:none;font-size:14px;line-height:2;">
-    <li data-nl="seo.li1">《现代汉语词典》在线版 · 查字与起名用字参考：<a href="https://hanyu.baidu.com" target="_blank" rel="noopener">hanyu.baidu.com</a></li>
-    <li data-nl="seo.li2">Behind The Name · 英文/日文名字来源考据：<a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a></li>
-    <li data-nl="seo.li3">Etymonline · 英文词源与用法演化：<a href="https://www.etymonline.com" target="_blank" rel="noopener">etymonline.com</a></li>
-    <li data-nl="seo.li4">维基百科 · 姓名与命名学条目：<a href="https://zh.wikipedia.org/wiki/姓名" target="_blank" rel="noopener">zh.wikipedia.org</a></li>
+    <li data-nl="seo.li1" data-mode="html">《现代汉语词典》在线版 · 查字与起名用字参考：<a href="https://hanyu.baidu.com" target="_blank" rel="noopener">hanyu.baidu.com</a></li>
+    <li data-nl="seo.li2" data-mode="html">Behind The Name · 英文/日文名字来源考据：<a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a></li>
+    <li data-nl="seo.li3" data-mode="html">Etymonline · 英文词源与用法演化：<a href="https://www.etymonline.com" target="_blank" rel="noopener">etymonline.com</a></li>
+    <li data-nl="seo.li4" data-mode="html">维基百科 · 姓名与命名学条目：<a href="https://zh.wikipedia.org/wiki/姓名" target="_blank" rel="noopener">zh.wikipedia.org</a></li>
     </ul>
-    <p style="font-size:14px;margin-top:14px;line-height:1.9;" data-nl="seo.friend">更多在线工具：<a href="https://li00000.xyz/" target="_blank" rel="noopener">在线PS</a> · <a href="https://blog.li00000.xyz/" target="_blank" rel="noopener">博客</a> · <a href="https://tjtkw.li00000.xyz/" target="_blank" rel="noopener">健身体脂计算器</a> · <a href="https://calsa.li00000.xyz/" target="_blank" rel="noopener">时区倒计时</a> · <a href="https://bmuws.li00000.xyz/" target="_blank" rel="noopener">烘焙换算</a> · <a href="https://bwzib.li00000.xyz/" target="_blank" rel="noopener">篝火燃料估算</a></p>
+    <p style="font-size:14px;margin-top:14px;line-height:1.9;" data-nl="seo.friend" data-mode="html">更多在线工具：<a href="https://li00000.xyz/" target="_blank" rel="noopener">在线PS</a> · <a href="https://blog.li00000.xyz/" target="_blank" rel="noopener">博客</a> · <a href="https://tjtkw.li00000.xyz/" target="_blank" rel="noopener">健身体脂计算器</a> · <a href="https://calsa.li00000.xyz/" target="_blank" rel="noopener">时区倒计时</a> · <a href="https://bmuws.li00000.xyz/" target="_blank" rel="noopener">烘焙换算</a> · <a href="https://bwzib.li00000.xyz/" target="_blank" rel="noopener">篝火燃料估算</a></p>
     <p style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.7;" data-nl="seo.fine">本页名称均由词库随机组合生成，可能与他人已有网名巧合雷同；涉及注册商标或已广为人知的名称请自行避让。</p>
   </div>
 </section>
